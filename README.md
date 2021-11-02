@@ -2,7 +2,7 @@
 
 This is a repository template for the re:Clojure / SciCloj workshop
 "Wrangling Arrays with dtype-next", given in association with the
-[2021 re:Clojure uonference](https://www.reclojure.org/#speakers), and
+[2021 re:Clojure conference](https://www.reclojure.org/#speakers), and
 developed by [David Sletten]() and [Ethan
 Miller](http://ethanzanemiller.com)
 
