@@ -1,0 +1,6 @@
+{:path ["src"]
+ :deps {
+        ;; tech.ml.dataset will include the latest stable
+        ;; version of dtype-next, so this import is enough.
+        techascent/tech.ml.dataset {:mvn/version "6.027"}
+        }}
