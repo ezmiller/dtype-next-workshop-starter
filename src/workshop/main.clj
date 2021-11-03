@@ -29,7 +29,8 @@
 ;; - lazy & non-caching
 
 
-;; Let's creat one. A few ways to do this. Here's one.
+;; Let's create one. A few ways to do this. Here's one.
+;; We will see some other soon.
 (def a-buffer (dtype/as-buffer [1 2 3 4]))
 
 a-buffer
