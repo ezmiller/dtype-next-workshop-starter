@@ -2,10 +2,10 @@
   (:require [criterium.core :refer [quick-bench]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Intro
+;; 1 Intro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Prelude: https://docs.google.com/presentation/d/1w_9IJi9zpIW_VND40pH4C-namLf7jgNCiiGWCnfjtmo/edit?usp=sharing
+;; Prelude slides: https://tinyurl.com/usdf5twj
 
 ;; The power of the library in a nutshell.
 ;; We might ask: why do we need dtype-next?
@@ -15,19 +15,19 @@
          '[tech.v3.datatype.functional :as fun])
 
 (quick-bench (reduce + (range 1000000)))
+
 (quick-bench (fun/sum (dtype/->reader (range 1000000) :int64)))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; The Buffer in Dtype-Next
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 2 The Buffer in dtype-Next
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Buffers are
 ;; - random-access
 ;; - countable
 ;; - typed
 ;; - lazy & non-caching
-
 
 ;; Let's create one. A few ways to do this. Here's one.
 ;; We will see some other soon.
@@ -90,7 +90,7 @@ a-buffer
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Working with Buffers 
+;; 3 Working with Buffers 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; So we now know what buffers are. How do we interact with them?
@@ -137,5 +137,49 @@ a-buffer
 (fun/* a-ints b-floats)
 
 (dtype/elemwise-datatype (fun/* a-ints b-floats))
+
+;; Mapping
+(dtype/emap (constantly 0) :int64 (range 10))
+
+(dtype/emap (fn [x] (+ x (/ x 10))) :float64 (range 10))
+
+;; Subsetting
+(dtype/sub-buffer (dtype/->reader (range 10) :int64) 5 3)
+
+
+;; Filtering in index space
+(require '[tech.v3.datatype.argops :as dtype-argops])
+
+(let [rdr (dtype/->reader (range 10) :int32)
+      indices (->> (dtype/->reader (range 10) :int64)
+                   (dtype-argops/argfilter odd? {}))]
+  (dtype/indexed-buffer indices rdr))
+
+
+(require '[clojure.java.io :as io]
+         '[clojure.data.csv :as csv]
+         '[tech.v3.tensor :as tensor])
+
+(def data-url
+  "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data" )
+
+
+(def raw-data (-> data-url slurp csv/read-csv))
+
+(def data (->> (vec raw-data)
+               (dtype/emap first :object)
+               (dtype/emap #(Float/parseFloat %) :float32)))
+
+(take 5 data)
+
+
+(let [smin (apply fun/min data)
+      smax (apply fun/max data)]
+  (fun// (fun/- data smin) (- smax smin)))
+
+
+
+
+
 
 
