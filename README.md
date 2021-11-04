@@ -36,6 +36,14 @@ What is in this repository?
 * The code that we will cover in our workshop, see the
   `src/workshop/*`.
 
+## A Few Suggested Exercises
 
+1. Create a buffer containing a fibonacci sequence using the
+   `make-reader` function.
 
+1. Try to use the `argfilter` and `indexed-buffer` functions to filter
+   a numerical buffer by a `<` or `>` operation on the existing values.
+   
+Try to complete some of these exercises for Numpy using dtype-next:
+[link](https://www.machinelearningplus.com/python/101-numpy-exercises-python/)
 
