@@ -95,13 +95,15 @@ an-int-buffer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; So we now know what buffers are. How do we interact with them?
+;; We can often use clojure functions like map & reduce.
+(reduce + (dtype/->reader (range 1000000) :int32))
 
-;; First we can often use clojure functions like map & reduce.
-(reduce + (dtype/->reader (range 1000000 :int32)))
 (keep #(when (odd? %) %) (dtype/->reader (range 10) :int32))
 
-;; But we can't expect the operations to be particular efficient
-;; and we leave dtype-next world when we use them.
+(count (dtype/->reader (range 1000000) :int32))
+
+; But we can't expect the operations to be particular efficient
+; and we leave dtype-next world when we use them.
 (class
  (keep #(when (odd? %) %) (dtype/->reader (range 10) :int32)))
 
@@ -120,9 +122,9 @@ an-int-buffer
 
 (fun/- a b)
 
-(class (fun/- a b))
+(dtype/datatype (fun/- a b))
 
-(fun/pow b 2)
+(fun/pow a 2)
 
 (fun/log a)
 
@@ -135,6 +137,7 @@ an-int-buffer
 
 (dtype/elemwise-datatype b-floats)
 
+;; What do we expect here?
 (fun/* a-ints b-floats)
 
 (dtype/elemwise-datatype (fun/* a-ints b-floats))
@@ -147,34 +150,41 @@ an-int-buffer
 ;; Subsetting
 (dtype/sub-buffer (dtype/->reader (range 10) :int64) 5 3)
 
-
 ;; Filtering in index space
+
+; Let's say we want to grab only odd values?
+(fun/odd? (dtype/->reader (range 10) :int32))
+
 (require '[tech.v3.datatype.argops :as dtype-argops])
 
-(let [rdr (dtype/->reader (range 10) :int32)
-      indices (->> (dtype/->reader (range 10) :int64)
-                   (dtype-argops/argfilter odd? {}))]
-  (dtype/indexed-buffer indices rdr))
+(dtype-argops/argfilter odd? (dtype/->reader (range 100)))
 
+(let [rdr (dtype/->reader (range 100) :int32)
+      indices (dtype-argops/argfilter odd? {} rdr)]
+  (dtype/indexed-buffer indices rdr))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 3 Small exercise to put this together
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(require [clojure.data.csv :as csv])
+;; Goal: Create a normalized form of iris's sepallength whose values
+;; range exactly between 0 and 1 so that the minimum has value 0 and
+;; maximum has value 1.
 
 (def data-url
   "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data" )
 
+(require '[clojure.data.csv :as csv])
 
 (def raw-data (-> data-url slurp csv/read-csv))
+
+raw-data
 
 (def data (->> (vec raw-data)
                (dtype/emap first :object)
                (dtype/emap #(Float/parseFloat %) :float32)))
 
 (take 5 data)
-
 
 (let [smin (apply fun/min data)
       smax (apply fun/max data)]
