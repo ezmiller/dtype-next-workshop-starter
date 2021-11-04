@@ -178,7 +178,7 @@ an-int-buffer
 
 (def raw-data (-> data-url slurp csv/read-csv))
 
-raw-data
+(take 2 raw-data)
 
 (def data (->> (vec raw-data)
                (dtype/emap first :object)
