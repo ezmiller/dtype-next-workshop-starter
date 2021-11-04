@@ -26,8 +26,8 @@
 ;; Buffers are
 ;; - random-access
 ;; - countable
-;; - typed
-;; - lazy & non-caching
+;; - typed - all elements of same type
+;; - **lazy & non-caching** 
 
 ;; Let's create one. A few ways to do this. Here's one.
 ;; We will see some other soon.
@@ -45,7 +45,7 @@ a-buffer
 ;; What if check its class?
 (class a-buffer)
 
-;; Wow! That's unusual. What's oging on here?  
+;; Wow! That's unusual. What's going on here?  
 
 ;; How can we know what type of thing we are working with then?
 (dtype/datatype [1 2 3])
@@ -62,7 +62,11 @@ a-buffer
 
 (def an-int-buffer (dtype/->reader [1 2 3] :int32))
 
+an-int-buffer
+
 (dtype/elemwise-datatype an-int-buffer)
+
+(tech.v3.datatype.casting/all-datatypes)
 
 ;; What is this thing the reader?
 
@@ -82,12 +86,9 @@ a-buffer
 
 (take 5 big-rdr)
 
-(def realized-br (dtype/make-container big-rdr))
+(def realized-br (dtype/make-container big-rdr)) ;; also: `dtype/clone`
+
 (take 5 realized-br)
-
-(dtype/writer? rdr)
-(dtype/writer? (dtype/make-container rdr))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 3 Working with Buffers 
@@ -156,9 +157,11 @@ a-buffer
   (dtype/indexed-buffer indices rdr))
 
 
-(require '[clojure.java.io :as io]
-         '[clojure.data.csv :as csv]
-         '[tech.v3.tensor :as tensor])
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 3 Small exercise to put this together
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(require [clojure.data.csv :as csv])
 
 (def data-url
   "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data" )
