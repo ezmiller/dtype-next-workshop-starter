@@ -1,5 +1,6 @@
 (ns workshop.main
-  (:require [criterium.core :refer [quick-bench]]))
+  (:require [criterium.core :refer [quick-bench]]
+            [clojure.string :as s]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 1 Intro
@@ -57,6 +58,7 @@ a-buffer
 ;; Hmmm why object? What's happening here? 
 
 (dtype/elemwise-datatype (dtype/as-buffer (int-array [1 2 3])))
+(dtype/elemwise-datatype (dtype/as-buffer (vector-of :int 1 2 3)))
 
 ;; Better yet some pathways in dtype-next for making things with specific types.
 
@@ -85,6 +87,8 @@ an-int-buffer
 (def big-rdr (dtype/make-reader :int64 1000000 (* idx (rand-int 100))))
 
 (take 5 big-rdr)
+
+(dtype/sub-buffer big-rdr 999000 5)
 
 (def realized-br (dtype/make-container big-rdr)) ;; also: `dtype/clone`
 
@@ -121,6 +125,8 @@ an-int-buffer
 (def b (dtype/->reader (range 4) :int32))
 
 (fun/- a b)
+(fun/- a 2)
+(fun/- 3 2)
 
 (dtype/datatype (fun/- a b))
 
@@ -160,14 +166,14 @@ an-int-buffer
 (dtype-argops/argfilter odd? (dtype/->reader (range 100)))
 
 (let [rdr (dtype/->reader (range 100) :int32)
-      indices (dtype-argops/argfilter odd? {} rdr)]
+      indices (dtype-argops/argfilter odd? rdr)]
   (dtype/indexed-buffer indices rdr))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 3 Small exercise to put this together
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Goal: Create a normalized form of iris's sepallength whose values
+;; Goal: Create a normalized form of iris's sepal length whose values
 ;; range exactly between 0 and 1 so that the minimum has value 0 and
 ;; maximum has value 1.
 
@@ -190,9 +196,67 @@ an-int-buffer
       smax (apply fun/max data)]
   (fun// (fun/- data smin) (- smax smin)))
 
+;; ☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠
+
+(def bad-data (->> (vec raw-data)
+               (dtype/emap first :object)))
+;               (dtype/emap #(Float/parseFloat %) :float32)))
+
+(dtype-argops/argfilter #(= % "") bad-data)
+
+(defn clean [rdr]
+  (let [indices (dtype-argops/argfilter (complement #(= % "")) rdr)]
+    (dtype/indexed-buffer indices rdr)))
+
+(def good-data (->> (vec raw-data)
+                    (dtype/emap first :object)
+                    (clean)
+                    (dtype/emap #(Float/parseFloat %) :float32)))
+
+(dtype-argops/argfilter #(= % "") good-data)
+(dtype-argops/argfilter #(> % 0.99) good-data)
+
+(dtype/datatype good-data)
+(class good-data)
+
+(fun/min good-data)
+(let [smin (apply fun/min good-data)
+      smax (apply fun/max good-data)]
+  (fun// (fun/- good-data smin) (- smax smin)))
+
+;;
+;;    Integration with tech.ml.dataset
+;;
+(require '[tech.v3.dataset :as tmd])
+
+(tmd/->dataset data-url)
+
+(tmd/->dataset data-url {:file-type :csv})
+
+(tmd/->dataset data-url {:file-type :csv :header-row? false})
 
 
+(def ds (tmd/->dataset data-url {:file-type :csv :header-row? false}))
 
+;;    Confirm column labels
+(tmd/head ds)
 
+(dtype/->reader (ds "column-0") :float64)
+
+(def sepal (dtype/->reader (ds "column-0")))
+(dtype/elemwise-datatype sepal)
+
+sepal
+(class sepal)
+(dtype/datatype sepal)
+
+(def column (ds "column-0"))
+(dtype/elemwise-datatype column)
+column
+
+(.data column)
+
+(fun/+ sepal 10)
+(fun/+ column 10)
 
 
