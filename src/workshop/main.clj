@@ -217,14 +217,21 @@ an-int-buffer
                     (dtype/emap #(Float/parseFloat %) :float32)))
 
 (dtype-argops/argfilter #(= % "") good-data)
-(dtype-argops/argfilter #(> % 0.99) good-data)
 
-(dtype/datatype good-data)
-(class good-data)
+(def normalized-data
+  (let [smin (fun/reduce-min good-data)
+        smax (fun/reduce-max good-data)]
+    (fun// (fun/- good-data smin) (- smax smin))))
 
-(let [smin (fun/reduce-min good-data)
-      smax (fun/reduce-max good-data)]
-  (fun// (fun/- good-data smin) (- smax smin)))
+normalized-data
+
+;; Validate result
+(fun/sum (dtype/concat-buffers
+          :int32
+          [(dtype/->int-array (fun/> 1 good-data))
+           (dtype/->int-array (fun/< good-data 0))]))
+
+
 
 ;;
 ;;    Integration with tech.ml.dataset
