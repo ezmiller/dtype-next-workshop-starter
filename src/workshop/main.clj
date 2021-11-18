@@ -199,8 +199,8 @@ an-int-buffer
 ;; ☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠
 
 (def bad-data (->> (vec raw-data)
-               (dtype/emap first :object)))
-;               (dtype/emap #(Float/parseFloat %) :float32)))
+               (dtype/emap first :object)
+               #_(dtype/emap #(Float/parseFloat %) :float32)))
 
 (dtype-argops/argfilter #(= % "") bad-data)
 
