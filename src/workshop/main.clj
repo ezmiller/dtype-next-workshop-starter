@@ -202,8 +202,11 @@ an-int-buffer
                (dtype/emap first :object)
                #_(dtype/emap #(Float/parseFloat %) :float32)))
 
+;; We see we have one empty string
 (dtype-argops/argfilter #(= % "") bad-data)
 
+;; So let's clean the data using the index-space operation
+;; from above (e.g. `argfilter`)
 (defn clean [rdr]
   (let [indices (dtype-argops/argfilter (complement #(= % "")) rdr)]
     (dtype/indexed-buffer indices rdr)))
