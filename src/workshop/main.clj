@@ -232,10 +232,10 @@ normalized-data
            (dtype/->int-array (fun/< good-data 0))]))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 4 Addendum: Illustrating the connection bewteen dtype-next and tech.ml.dataset
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;
-;;    Integration with tech.ml.dataset
-;;
 (require '[tech.v3.dataset :as tmd])
 
 (tmd/->dataset data-url)
