@@ -192,8 +192,8 @@ an-int-buffer
 
 (take 5 data)
 
-(let [smin (apply fun/min data)
-      smax (apply fun/max data)]
+(let [smin (fun/reduce-min data)
+      smax (fun/reduce-max data)]
   (fun// (fun/- data smin) (- smax smin)))
 
 ;; ☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠☠
@@ -219,9 +219,8 @@ an-int-buffer
 (dtype/datatype good-data)
 (class good-data)
 
-(fun/min good-data)
-(let [smin (apply fun/min good-data)
-      smax (apply fun/max good-data)]
+(let [smin (fun/reduce-min good-data)
+      smax (fun/reduce-max good-data)]
   (fun// (fun/- good-data smin) (- smax smin)))
 
 ;;
