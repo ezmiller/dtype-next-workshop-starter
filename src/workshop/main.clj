@@ -58,6 +58,7 @@ a-buffer
 ;; Hmmm why object? What's happening here? 
 
 (dtype/elemwise-datatype (dtype/as-buffer (int-array [1 2 3])))
+
 (dtype/elemwise-datatype (dtype/as-buffer (vector-of :int 1 2 3)))
 
 ;; Better yet some pathways in dtype-next for making things with specific types.
@@ -119,13 +120,16 @@ an-int-buffer
 ;;
 ;; https://cnuernber.github.io/dtype-next/tech.v3.datatype.functional.html
 
+
 ;; With this namespace we can perform basic arithemetic on buffers.
 (def a (dtype/->reader [20 30 40 50] :int32))
 
 (def b (dtype/->reader (range 4) :int32))
 
 (fun/- a b)
+
 (fun/- a 2)
+
 (fun/- 3 2)
 
 (dtype/datatype (fun/- a b))
@@ -247,12 +251,15 @@ normalized-data
 
 (def ds (tmd/->dataset data-url {:file-type :csv :header-row? false}))
 
+(ds "column-0")
+
 ;;    Confirm column labels
 (tmd/head ds)
 
 (dtype/->reader (ds "column-0") :float64)
 
 (def sepal (dtype/->reader (ds "column-0")))
+
 (dtype/elemwise-datatype sepal)
 
 sepal
@@ -260,12 +267,21 @@ sepal
 (dtype/datatype sepal)
 
 (def column (ds "column-0"))
+
 (dtype/elemwise-datatype column)
+
 column
 
 (.data column)
 
 (fun/+ sepal 10)
+
 (fun/+ column 10)
 
+ds
 
+
+(class sepal)
+(dtype/datatype sepal)
+
+(require '[tech.v3.datatype.functional :as fun])
